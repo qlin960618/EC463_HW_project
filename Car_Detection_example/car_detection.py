@@ -3,10 +3,10 @@ import cv2
 import numpy as np
 
 #create VideoCapture object and read from video file
-cap = cv2.VideoCapture('cars.mp4')
+cap = cv2.VideoCapture('car2.mp4')
 #use trained cars XML classifiers
-car_cascade = cv2.CascadeClassifier('cars.xml')
-video=cv2.VideoWriter("car_result.mp4", 0, 1, (1280, 720))
+car_cascade = cv2.CascadeClassifier('sideviewCar.xml')
+video=cv2.VideoWriter("car2_result.mp4", 0, 30, (1920,1080))
 
 #read until video is completed
 while True:
