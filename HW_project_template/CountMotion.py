@@ -53,8 +53,8 @@ def counter(
 
     frame_count_interval = int(param["video_fps"] * param["count_interval_seconds"])
 
-    if not h5fn.is_file():
-        raise FileNotFoundError(h5fn)
+    #if not h5fn.is_file():
+     #   raise FileNotFoundError(h5fn)
     with h5py.File(h5fn, "r") as f:
         mot = np.rot90(f[key][start:].astype(np.uint8), axes=(1, 2))
     # %% approximate elapsed time
