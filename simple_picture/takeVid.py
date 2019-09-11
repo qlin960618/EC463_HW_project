@@ -2,12 +2,11 @@ import io
 import time
 import picamera
 
-with picamera.PiCamera() as camera:
-    stream = io.BytesIO("./vid.avi")
+camera=picamera.PiCamera()
+camera.start_preview()
+camera.framerate = 60
 
-    for foo in camera.capture_continuous(stream, format='jpeg'):
-    # YOURS:  for frame in camera.capture_continuous(stream, format="bgr",  use_video_port=True):
-        # Truncate the stream to the current position (in case
-        # prior iterations output a longer image)
-        stream.truncate()
-        stream.seek(0)
+camera.start_recording('./video.h264')
+time.sleep(30)
+camera.stop_recording()
+camera.stop_preview()

@@ -1,0 +1,9 @@
+README.md
+setup.cfg
+setup.py
+hwmp.egg-info/PKG-INFO
+hwmp.egg-info/SOURCES.txt
+hwmp.egg-info/dependency_links.txt
+hwmp.egg-info/not-zip-safe
+hwmp.egg-info/requires.txt
+hwmp.egg-info/top_level.txt

@@ -1,0 +1,10 @@
+h5py
+numpy
+
+[io]
+picamera>=1.13
+
+[tests]
+flake8
+mypy
+pytest>=3.9
