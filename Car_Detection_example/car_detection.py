@@ -6,7 +6,7 @@ import numpy as np
 cap = cv2.VideoCapture('cars.mp4')
 #use trained cars XML classifiers
 car_cascade = cv2.CascadeClassifier('cars.xml')
-video=cv2.VideoWriter("car_result.mp4", 0, 1, (1280 ,720))
+video=cv2.VideoWriter("car_result.mp4", 0, 1, (1280, 720))
 
 #read until video is completed
 while True:
@@ -20,10 +20,10 @@ while True:
 
     #to draw arectangle in each cars 
     for (x,y,w,h) in cars:
-        cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)      
+        cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2) 
 
     #display the resulting frame
-    video.write(image)
+    video.write(frame)
     #cv2.imshow('video', frame)
     #press Q on keyboard to exit
     if cv2.waitKey(25) & 0xFF == ord('q'):
