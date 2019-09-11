@@ -18,7 +18,7 @@ def main():
     p.add_argument("-fps", type=int, default=30)
     p = p.parse_args()
 
-    outdir = Path(p.odir).expanduser() / datetime.now().isoformat()[:-10]
+    outdir = Path(p.odir).expanduser()
     vidfn = outdir / "raw.mp4"
     motfn = outdir / "motion.h5"
     outdir.mkdir(parents=True, exist_ok=True)
