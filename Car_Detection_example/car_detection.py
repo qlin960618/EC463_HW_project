@@ -6,6 +6,7 @@ import numpy as np
 cap = cv2.VideoCapture('cars.mp4')
 #use trained cars XML classifiers
 car_cascade = cv2.CascadeClassifier('cars.xml')
+video=cv2.VideoWriter("car_result.mp4", 0, 1, (1280 ,720))
 
 #read until video is completed
 while True:
@@ -22,11 +23,14 @@ while True:
         cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)      
 
     #display the resulting frame
-    cv2.imshow('video', frame)
+    video.write(image)
+    #cv2.imshow('video', frame)
     #press Q on keyboard to exit
     if cv2.waitKey(25) & 0xFF == ord('q'):
         break
 #release the videocapture object
 cap.release()
+video.release()
 #close all the frames
-cv2.destroyAllWindows()
+
+#cv2.destroyAllWindows()
