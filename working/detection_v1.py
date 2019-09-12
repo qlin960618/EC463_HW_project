@@ -17,7 +17,7 @@ CAP_DEV="cv2"
 
 VIDEO_NAME="./record.avi"
 
-duration = 100  #in frames
+duration = 1000  #in frames
 
 
 if os.path.exists(VIDEO_NAME):
