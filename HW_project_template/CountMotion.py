@@ -78,51 +78,51 @@ def counter(
                 h["h3"].set_ydata(np.cumsum(CarCount))
         # %% save plots
         if doplot:
-			h["t1"].set_text(f"h.264 difference frames: index {i}, elapsed seconds {time[j]}")
-			h["h1"].set_data(mot[i])
-			h["fg"].canvas.draw()
-			h["fg"].canvas.flush_events()
-			pause(0.001)
-			if saveplot:
-				h["fg"].savefig(saveplot + f"{i:05d}.png", bbox_inches="tight", dpi=100)
+            h["t1"].set_text(f"h.264 difference frames: index {i}, elapsed seconds {time[j]}")
+            h["h1"].set_data(mot[i])
+            h["fg"].canvas.draw()
+            h["fg"].canvas.flush_events()
+            pause(0.001)
+            if saveplot:
+                h["fg"].savefig(saveplot + f"{i:05d}.png", bbox_inches="tight", dpi=100)
 
     return CarCount, time
 
 
 def get_param(fn: Path) -> typing.Dict[str, typing.Any]:
-	C = configparser.ConfigParser()
-	C.read_string(config_fn.read_text(), source=str(config_fn))
-	param = {
-	    "detect_max": C.getfloat("DEFAULT", "detect_max"),
-	    "detect_min": C.getfloat("DEFAULT", "detect_min"),
-	    "noise_min": C.getfloat("DEFAULT", "noise_min"),
-	    "count_interval_seconds": C.getfloat("DEFAULT", "count_interval_seconds"),
-	    "video_fps": C.getfloat("DEFAULT", "video_fps"),
-	}
+    C = configparser.ConfigParser()
+    C.read_string(config_fn.read_text(), source=str(config_fn))
+    param = {
+        "detect_max": C.getfloat("DEFAULT", "detect_max"),
+        "detect_min": C.getfloat("DEFAULT", "detect_min"),
+        "noise_min": C.getfloat("DEFAULT", "noise_min"),
+        "count_interval_seconds": C.getfloat("DEFAULT", "count_interval_seconds"),
+        "video_fps": C.getfloat("DEFAULT", "video_fps"),
+    }
 
-	return param
+    return param
 
 
 def spatial_discrim(mot: np.ndarray, p: typing.Dict[str, typing.Any], h: typing.Dict[str, typing.Any]) -> int:
-	"""
-	implement spatial LPF for two lanes of traffic
-	"""
-	iLPF = p["iLPF"]
-	# %% define two spatial lanes of traffic
-	lane1 = mot[ilanes[0][0]: ilanes[0][1], :].sum(axis=0)
-	lane2 = mot[ilanes[1][0]: ilanes[1][1], :].sum(axis=0)
-	# %% motion PSD
-	Flane1 = np.fft.fftshift(abs(np.fft.fft(lane1)) ** 2)
-	Flane2 = np.fft.fftshift(abs(np.fft.fft(lane2)) ** 2)
-	# %% motion detected within magnitude limits
-	N1 = int(p["detect_min"] <= Flane1[iLPF[0]: iLPF[1]].sum() <= p["detect_max"])
-	N2 = int(p["detect_min"] <= Flane2[iLPF[0]: iLPF[1]].sum() <= p["detect_max"])
-	# %% plot
-	if "h21" in h:
-		h["h21"].set_ydata(Flane1)
-		h["h22"].set_ydata(Flane2)
+    """
+    implement spatial LPF for two lanes of traffic
+    """
+    iLPF = p["iLPF"]
+    # %% define two spatial lanes of traffic
+    lane1 = mot[ilanes[0][0]: ilanes[0][1], :].sum(axis=0)
+    lane2 = mot[ilanes[1][0]: ilanes[1][1], :].sum(axis=0)
+    # %% motion PSD
+    Flane1 = np.fft.fftshift(abs(np.fft.fft(lane1)) ** 2)
+    Flane2 = np.fft.fftshift(abs(np.fft.fft(lane2)) ** 2)
+    # %% motion detected within magnitude limits
+    N1 = int(p["detect_min"] <= Flane1[iLPF[0]: iLPF[1]].sum() <= p["detect_max"])
+    N2 = int(p["detect_min"] <= Flane2[iLPF[0]: iLPF[1]].sum() <= p["detect_max"])
+    # %% plot
+    if "h21" in h:
+        h["h21"].set_ydata(Flane1)
+        h["h22"].set_ydata(Flane2)
 
-	return N1 + N2
+    return N1 + N2
 
 
 def fig_create(
@@ -132,42 +132,42 @@ def fig_create(
     if not doplot:
         return {}
 
-	fg = figure(figsize=(8, 10))
-	ax1, ax2, ax3 = fg.subplots(3, 1)
-	fg.suptitle("spatial FFT car counting")
+    fg = figure(figsize=(8, 10))
+    ax1, ax2, ax3 = fg.subplots(3, 1)
+    fg.suptitle("spatial FFT car counting")
 
-		h = {"fg": fg, "h1": ax1.imshow(img, origin="upper"), "t1": ax1.set_title("")}
-	# plot lanes
-	ax1.axhline(ilanes[0][0], color="cyan", linestyle="--")
-	ax1.axhline(ilanes[0][1], color="cyan", linestyle="--")
-	ax1.axhline(ilanes[1][0], color="orange", linestyle="--")
-	ax1.axhline(ilanes[1][1], color="orange", linestyle="--")
+    h = {"fg": fg, "h1": ax1.imshow(img, origin="upper"), "t1": ax1.set_title("")}
+    # plot lanes
+    ax1.axhline(ilanes[0][0], color="cyan", linestyle="--")
+    ax1.axhline(ilanes[0][1], color="cyan", linestyle="--")
+    ax1.axhline(ilanes[1][0], color="orange", linestyle="--")
+    ax1.axhline(ilanes[1][1], color="orange", linestyle="--")
 
-	L = img.shape[-1]
-	fx = np.arange(-L // 2, L // 2)
-	h["h21"], = ax2.plot(fx, [0] * fx.size)
-	h["h22"], = ax2.plot(fx, [0] * fx.size)
-	ax2.set_title("Spatial frequency")
-	ax2.set_ylim(0, max_psd)
-	ax2.set_xlabel("Spatial Frequency bin (arbitrary units)")
-	ax2.set_ylabel("magnitude$^2$")
-	# %% setup rectangular spatial LPF for each lane -- cars are big
-	ax2.axvline(p["iLPF"][0] - L // 2, color="red", linestyle="--")
-	ax2.axvline(p["iLPF"][1] - L // 2, color="red", linestyle="--")
-	ax2.axhline(p["detect_min"], linestyle="--")
-	ax2.axhline(p["detect_max"], linestyle="--")
+    L = img.shape[-1]
+    fx = np.arange(-L // 2, L // 2)
+    h["h21"], = ax2.plot(fx, [0] * fx.size)
+    h["h22"], = ax2.plot(fx, [0] * fx.size)
+    ax2.set_title("Spatial frequency")
+    ax2.set_ylim(0, max_psd)
+    ax2.set_xlabel("Spatial Frequency bin (arbitrary units)")
+    ax2.set_ylabel("magnitude$^2$")
+    # %% setup rectangular spatial LPF for each lane -- cars are big
+    ax2.axvline(p["iLPF"][0] - L // 2, color="red", linestyle="--")
+    ax2.axvline(p["iLPF"][1] - L // 2, color="red", linestyle="--")
+    ax2.axhline(p["detect_min"], linestyle="--")
+    ax2.axhline(p["detect_max"], linestyle="--")
 
-	ax3.set_title("cumulative car count")
-	ax3.set_xlabel("elapsed time (seconds)")
-	ax3.set_ylabel("count")
-	ax3.grid(True)
-	ax3.set_ylim(0, max_cumulative)
-	h["h3"], = ax3.plot(time, CarCount)
+    ax3.set_title("cumulative car count")
+    ax3.set_xlabel("elapsed time (seconds)")
+    ax3.set_ylabel("count")
+    ax3.grid(True)
+    ax3.set_ylim(0, max_cumulative)
+    h["h3"], = ax3.plot(time, CarCount)
 
-	fg.tight_layout()
-	fg.canvas.draw()
+    fg.tight_layout()
+    fg.canvas.draw()
 
-	return h
+    return h
 
 
 if __name__ == "__main__":
